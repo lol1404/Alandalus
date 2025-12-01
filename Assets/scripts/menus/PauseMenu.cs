@@ -31,14 +31,22 @@ public class PauseMenu : MonoBehaviour
 
     void Start()
     {
-        pausePanel.SetActive(false);
+        // Protección contra referencias null
+        if (pausePanel != null)
+            pausePanel.SetActive(false);
 
-        float savedVolume = PlayerPrefs.GetFloat("Volume", 1f);
-        volumeSlider.value = savedVolume;
-        AudioListener.volume = savedVolume;
+        if (volumeSlider != null)
+        {
+            float savedVolume = PlayerPrefs.GetFloat("Volume", 1f);
+            volumeSlider.value = savedVolume;
+            AudioListener.volume = savedVolume;
+        }
 
-        graphicsDropdown.value = PlayerPrefs.GetInt("Graphics", QualitySettings.GetQualityLevel());
-        graphicsDropdown.RefreshShownValue();
+        if (graphicsDropdown != null)
+        {
+            graphicsDropdown.value = PlayerPrefs.GetInt("Graphics", QualitySettings.GetQualityLevel());
+            graphicsDropdown.RefreshShownValue();
+        }
     }
 
     private void TogglePause()
@@ -49,14 +57,16 @@ public class PauseMenu : MonoBehaviour
 
     public void Pause()
     {
-        pausePanel.SetActive(true);
+        if (pausePanel != null)
+            pausePanel.SetActive(true);
         Time.timeScale = 0f;
         isPaused = true;
     }
 
     public void Resume()
     {
-        pausePanel.SetActive(false);
+        if (pausePanel != null)
+            pausePanel.SetActive(false);
         Time.timeScale = 1f;
         isPaused = false;
     }

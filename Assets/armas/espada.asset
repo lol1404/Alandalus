@@ -18,8 +18,8 @@ MonoBehaviour:
   attackRange: 4
   knockbackForce: 50
   attackRadius: 0.5
-  attackFreezeDuration: 0.1
-  playerAttackKnockbackForce: 10
+  attackFreezeDuration: 0.2
+  playerAttackKnockbackForce: 15
   playerAttackKnockbackDuration: 0.08
   icon: {fileID: -2589446528093331400, guid: fec62c9fdb4b5e84589cd4f7e988cbd7, type: 3}
   attackEffectPrefab: {fileID: 4980748619841904614, guid: 0abe718c34938ed4894e5ebe997c2d6b, type: 3}

@@ -11,27 +11,17 @@ public class EnemyDamage : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             PlayerHealth playerHealth = other.GetComponent<PlayerHealth>();
-            PlayerAttack playerAttack = other.GetComponent<PlayerAttack>();
-            KnockbackController knockbackController = other.GetComponentInChildren<KnockbackController>();
-            
+            // Use the PlayerHealth unified receiver which follows the timeline:
+            // - pre-checks (iFrames/knockback active)
+            // - apply damage
+            // - if alive, apply knockback; if dead, call death without knockback
             if (playerHealth != null)
             {
-                // Calcular dirección de knockback (dirección contraria: del enemigo hacia el jugador)
-                Vector2 knockbackDir = (other.transform.position - transform.position).normalized;
-                
-                // PASO 1: Aplicar knockback SOLO si el jugador NO está atacando
-                if (knockbackController != null && (playerAttack == null || !playerAttack.IsAttackFreezing))
-                {
-                    knockbackController.ApplyHitKnockback(
-                        direction: knockbackDir,
-                        strength: knockbackForce,
-                        duration: knockbackDuration,
-                        options: default
-                    );
-                }
-                
-                // PASO 2: Aplicar daño (operación separada)
-                playerHealth.TakeDamage(damage);
+                // Source position is this enemy's position (knockback direction will be computed inside PlayerHealth)
+                Vector2 sourcePos = transform.position;
+
+                // Try to deliver damage following the timeline
+                playerHealth.ReceiveDamageFromSource(damage, sourcePos, knockbackForce, knockbackDuration, options: default);
             }
         }
     }

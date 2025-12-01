@@ -35,7 +35,8 @@ public class AttackCooldownUI : MonoBehaviour
         float cooldownProgress = GetCooldownProgress();
 
         // Actualizar la barra: escala horizontal (0 = vacía, 1 = llena)
-        cooldownBar.rectTransform.localScale = new Vector3(cooldownProgress, 1f, 1f);
+        if (cooldownBar.rectTransform != null)
+            cooldownBar.rectTransform.localScale = new Vector3(cooldownProgress, 1f, 1f);
 
         // Cambiar color según estado
         if (playerAttack.IsAttackOnCooldown)
@@ -52,6 +53,9 @@ public class AttackCooldownUI : MonoBehaviour
 
     float GetCooldownProgress()
     {
+        // Protección contra null reference
+        if (playerAttack == null) return 0f;
+        
         // Usa el método de PlayerAttack para obtener el progreso real (0 a 1)
         return playerAttack.GetCooldownProgress();
     }

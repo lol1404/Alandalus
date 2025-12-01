@@ -68,9 +68,17 @@ public class PlayerMovement : MonoBehaviour
         playerHealth = GetComponent<PlayerHealth>();
         playerAttack = GetComponent<PlayerAttack>();
         knockbackController = GetComponentInChildren<KnockbackController>();
+        
         Transform spriteChild = transform.Find("Square");
-        animator = spriteChild.GetComponent<Animator>();
-        spriteRenderer = spriteChild.GetComponent<SpriteRenderer>();
+        if (spriteChild != null)
+        {
+            animator = spriteChild.GetComponent<Animator>();
+            spriteRenderer = spriteChild.GetComponent<SpriteRenderer>();
+        }
+        else
+        {
+            Debug.LogWarning("[PlayerMovement] No se encontró el GameObject 'Square' como hijo del Player");
+        }
     }
 
     void Update()
@@ -101,11 +109,18 @@ public class PlayerMovement : MonoBehaviour
         currentVelocity = Vector2.Lerp(currentVelocity, movementInput * moveSpeed, acceleration * Time.fixedDeltaTime);
         rb.MovePosition(rb.position + currentVelocity * Time.fixedDeltaTime);
 
-        float speedForAnimation = Mathf.Clamp(currentVelocity.magnitude, 0f, 1.5f);
-        animator.SetFloat("Speed", speedForAnimation);
+        // Actualizar animación y sprite (con protección contra null)
+        if (animator != null)
+        {
+            float speedForAnimation = Mathf.Clamp(currentVelocity.magnitude, 0f, 1.5f);
+            animator.SetFloat("Speed", speedForAnimation);
+        }
 
-        if (movementInput.x > 0.01f) spriteRenderer.flipX = false;
-        else if (movementInput.x < -0.01f) spriteRenderer.flipX = true;
+        if (spriteRenderer != null)
+        {
+            if (movementInput.x > 0.01f) spriteRenderer.flipX = false;
+            else if (movementInput.x < -0.01f) spriteRenderer.flipX = true;
+        }
     }
 
     void TryDash()

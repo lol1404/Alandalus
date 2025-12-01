@@ -7,6 +7,10 @@ public class PlayerAttack : MonoBehaviour
     public WeaponData[] weapons;
     private int currentWeaponIndex = 0;
 
+    [Header("Configuración de Ataque")]
+    public float globalAttackFreezeDuration = 0.1f;  // Tiempo que se queda quieto al atacar (override global)
+    public bool useWeaponFreezeTime = true;  // Si es true, usa el freeze time del arma; si es false, usa globalAttackFreezeDuration
+
     private WeaponAttack weaponAttack;
 
     [Header("Interfaz")]
@@ -73,9 +77,14 @@ public class PlayerAttack : MonoBehaviour
             weaponAttack.Attack();
             if (weapons.Length > 0 && currentWeaponIndex < weapons.Length && weapons[currentWeaponIndex] != null)
             {
-                attackFreezeTimer = weapons[currentWeaponIndex].attackFreezeDuration;
+                // Usar freeze time: del arma O global según configuración
+                float freezeTime = useWeaponFreezeTime 
+                    ? weapons[currentWeaponIndex].attackFreezeDuration 
+                    : globalAttackFreezeDuration;
+                
+                attackFreezeTimer = freezeTime;
                 attackCooldownTimer = weapons[currentWeaponIndex].attackCooldown;
-                Debug.Log($"Ataque ejecutado. Cooldown: {weapons[currentWeaponIndex].attackCooldown}s");
+                Debug.Log($"Ataque ejecutado. Freeze: {freezeTime}s, Cooldown: {weapons[currentWeaponIndex].attackCooldown}s");
             }
         }
 
