@@ -7,6 +7,7 @@ public class WeaponAttack : MonoBehaviour
     public LayerMask enemyLayers;
 
     private WeaponData currentWeapon;
+    private BloodTearsManager tearsManager;
 
     public void EquipWeapon(WeaponData newWeapon)
     {
@@ -15,6 +16,10 @@ public class WeaponAttack : MonoBehaviour
 
     public void Attack()
     {
+        if (tearsManager == null)
+        {
+            tearsManager = GetComponent<BloodTearsManager>();
+        }
         if (currentWeapon == null) return;
 
         // Obtener dirección hacia el mouse usando el nuevo Input System
@@ -34,6 +39,13 @@ public class WeaponAttack : MonoBehaviour
 
         foreach (var enemy in hitEnemies)
         {
+            EnemyHealth enemyHealth = enemy.GetComponent<EnemyHealth>();
+            if (enemyHealth == null) continue;
+
+            // Otorgar lágrimas por golpe
+            if (tearsManager != null)
+                tearsManager.AddTears(enemyHealth.tearGainOnHit);
+
             // Calcular dirección de knockback individual para cada enemigo
             Vector2 knockbackDir = ((Vector2)enemy.transform.position - (Vector2)transform.position).normalized;
             
@@ -47,7 +59,7 @@ public class WeaponAttack : MonoBehaviour
             }
             
             // PASO 2: Hacer daño (operación separada)
-            enemy.GetComponent<EnemyHealth>()?.TakeDamage(currentWeapon.damage);
+            enemyHealth.TakeDamage(currentWeapon.damage, this.gameObject);
         }
 
         // Efectos visuales (SOLO si golpeaste algo)

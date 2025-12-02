@@ -31,6 +31,8 @@ public class PlayerMovement : MonoBehaviour
     private PlayerHealth playerHealth;
     private PlayerAttack playerAttack;
     private KnockbackController knockbackController;
+    private PlayerBowAttack playerBowAttack; // Referencia al nuevo sistema de arco
+    private BloodTearsManager tearsManager;
 
     [Header("Audio")]
     public AudioClip[] dashSounds;
@@ -68,6 +70,8 @@ public class PlayerMovement : MonoBehaviour
         playerHealth = GetComponent<PlayerHealth>();
         playerAttack = GetComponent<PlayerAttack>();
         knockbackController = GetComponentInChildren<KnockbackController>();
+        playerBowAttack = GetComponent<PlayerBowAttack>();
+        tearsManager = GetComponent<BloodTearsManager>();
         
         Transform spriteChild = transform.Find("Square");
         if (spriteChild != null)
@@ -97,6 +101,12 @@ public class PlayerMovement : MonoBehaviour
         // Si el jugador está congelado por ataque (ha atacado, pero no golpeado hacia atrás), salta la lógica de movimiento
         if (playerAttack != null && playerAttack.IsAttackFreezing)
         {
+            return;
+        }
+        // Si el jugador está canalizando curación, no se puede mover
+        if (tearsManager != null && tearsManager.IsChanneling)
+        {
+            rb.linearVelocity = Vector2.zero; // Detener movimiento bruscamente
             return;
         }
 

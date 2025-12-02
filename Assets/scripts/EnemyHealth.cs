@@ -5,22 +5,31 @@ public class EnemyHealth : MonoBehaviour
     [Header("Vida")]
     public int maxHealth = 3;
     private int currentHealth;
+    private GameObject lastAttacker; // Para saber a quién darle las lágrimas al morir
+
+    [Header("Recompensa de Lágrimas")]
+    public float tearGainOnHit = 1f;
+    public float tearGainOnKill = 10f;
 
     [Header("Efectos de Muerte")]
     public GameObject deathEffectPrefab;  // Efecto visual al morir (opcional)
     public AudioClip deathSound;          // Sonido al morir (opcional)
+
 
     void Start()
     {
         currentHealth = maxHealth;
     }
 
-    public void TakeDamage(int damage)
+    public void TakeDamage(int damage, GameObject attacker)
     {
         if (damage < 0) damage = 0;
         
         currentHealth -= damage;
         Debug.Log($"{gameObject.name} recibió {damage} de daño. Vida restante: {currentHealth}");
+
+        // Guardar quién fue el último en atacar
+        if (attacker != null) lastAttacker = attacker;
 
         if (currentHealth <= 0)
         {
@@ -41,6 +50,12 @@ public class EnemyHealth : MonoBehaviour
     void Die()
     {
         Debug.Log($"{gameObject.name} ha muerto.");
+
+        // Otorgar lágrimas al jugador que lo mató
+        if (lastAttacker != null)
+        {
+            lastAttacker.GetComponent<BloodTearsManager>()?.AddTears(tearGainOnKill);
+        }
         
         // Efecto visual
         if (deathEffectPrefab != null)

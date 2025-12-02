@@ -34,6 +34,7 @@ public class PlayerHealth : MonoBehaviour
     private Color[] originalColors;
     private SpriteRenderer[] spriteRenderers;
     private KnockbackController knockbackController;
+    private BloodTearsManager tearsManager; // Referencia al gestor de lágrimas
 
     private Rigidbody2D rb;
 
@@ -45,6 +46,7 @@ public class PlayerHealth : MonoBehaviour
         currentHealth = maxHealth;
         rb = GetComponent<Rigidbody2D>();
         knockbackController = GetComponentInChildren<KnockbackController>();
+        tearsManager = GetComponent<BloodTearsManager>();
         
         // Obtain SpriteRenderer from the child object (default: "Square")
         // First try to find the "Square" child, then fallback to all children
@@ -149,6 +151,12 @@ public class PlayerHealth : MonoBehaviour
         if (knockbackController != null && knockbackController.IsKnockbackActive())
             return false;
 
+        // Si el jugador está canalizando curación, interrumpirlo
+        if (tearsManager != null && tearsManager.IsChanneling)
+        {
+            tearsManager.HandleHitDuringChannel();
+        }
+
         // Validate source (avoid zero-distance which would give NaN direction)
         if (float.IsNaN(sourcePosition.x) || float.IsNaN(sourcePosition.y))
             return false;
@@ -201,6 +209,28 @@ public class PlayerHealth : MonoBehaviour
         }
 
         return true;
+    }
+
+    /// <summary>
+    /// Cura al jugador una cantidad de vida y actualiza la UI.
+    /// </summary>
+    public void Heal(int amount)
+    {
+        if (currentHealth >= maxHealth || amount <= 0) return;
+
+        int oldHealth = currentHealth;
+        currentHealth = Mathf.Min(currentHealth + amount, maxHealth);
+
+        // "Encender" las velas correspondientes
+        for (int i = oldHealth; i < currentHealth; i++)
+        {
+            if (i < velaAnimators.Length && velaAnimators[i] != null)
+            {
+                // Usamos un trigger o simplemente volvemos a poner el estado "vidaon"
+                velaAnimators[i].Play("vidaon", 0, Random.Range(0f, 1f));
+            }
+        }
+        Debug.Log($"Player se ha curado {amount} de vida. Vida actual: {currentHealth}");
     }
 
     private IEnumerator DieWithDelay()
